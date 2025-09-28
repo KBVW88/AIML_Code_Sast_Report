@@ -1,0 +1,39 @@
+name: Snyk Vulnerability Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  snyk_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install snyk fpdf
+
+      - name: Run Snyk scan and output results as JSON
+        run: snyk test --json-file-output=snyk-result.json || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Convert Snyk JSON result to HTML
+        run: python .github/scripts/snyk_to_html.py
+
+      - name: Upload Snyk HTML report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk_html_report
+          path: snyk_report.html
