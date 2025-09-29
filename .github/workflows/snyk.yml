@@ -31,6 +31,12 @@ jobs:
           pip install -r requirements.txt
           pip install snyk fpdf
 
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+
       - name: Run Snyk scan and output results as JSON
         run: snyk test --json-file-output=snyk-result.json || true
         env:
