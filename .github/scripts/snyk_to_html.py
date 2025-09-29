@@ -24,6 +24,14 @@ jobs:
           pip install -r requirements.txt
           pip install snyk fpdf
 
+    - name: Install Snyk
+        run: npm install -g snyk
+      - name: Run Snyk test
+        run: snyk test --json-file-output=snyk-result.json || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+
       - name: Run Snyk scan and output results as JSON
         run: snyk test --json-file-output=snyk-result.json || true
         env:
