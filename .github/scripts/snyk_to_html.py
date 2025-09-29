@@ -1,47 +1,34 @@
-name: Snyk Vulnerability Scan
+import json
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+SNYK_JSON = "snyk-result.json"
+HTML_OUTPUT = "snyk_report.html"
 
-jobs:
-  snyk_scan:
-    runs-on: ubuntu-latest
+def main():
+    with open(SNYK_JSON, "r") as f:
+        snyk_data = json.load(f)
+    
+    html = []
+    html.append("<html><head><title>Snyk Report</title></head><body>")
+    html.append("<h1>Snyk Security Report</h1>")
 
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+    vulns = snyk_data.get("vulnerabilities", [])
+    if vulns:
+        html.append(f"<h2>Found {len(vulns)} vulnerabilities</h2>")
+        html.append("<ul>")
+        for vuln in vulns:
+            title = vuln.get("title", "No title")
+            severity = vuln.get("severity", "unknown")
+            package = vuln.get("packageName", "unknown")
+            description = vuln.get("description", "")
+            html.append(f"<li><b>{title}</b> ({severity}) in <code>{package}</code><br>{description}</li>")
+        html.append("</ul>")
+    else:
+        html.append("<p>No vulnerabilities found or invalid snyk-result.json structure.</p>")
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+    html.append("</body></html>")
 
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install snyk fpdf
+    with open(HTML_OUTPUT, "w") as hf:
+        hf.write("\n".join(html))
 
-    - name: Install Snyk
-        run: npm install -g snyk
-      - name: Run Snyk test
-        run: snyk test --json-file-output=snyk-result.json || true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-
-      - name: Run Snyk scan and output results as JSON
-        run: snyk test --json-file-output=snyk-result.json || true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      - name: Convert Snyk JSON result to HTML
-        run: python .github/scripts/snyk_to_html.py
-
-      - name: Upload Snyk HTML report as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: snyk_html_report
-          path: snyk_report.html
+if __name__ == "__main__":
+    main()
