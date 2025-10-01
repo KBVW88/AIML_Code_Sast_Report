@@ -36,7 +36,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
         with:
-          args: src/
+          args: ./
       - name: Run Snyk scan and output results as JSON
         run: snyk test --json-file-output=snyk-result.json || true
         env:
