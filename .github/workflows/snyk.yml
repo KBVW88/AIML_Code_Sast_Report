@@ -29,15 +29,50 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-   
+   ##new code addedd for pytho
+name: Snyk Python Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  snyk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9.23'
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python@master
+        with:
+          command: test
+          json: false
+        env:
+          pythonLocation: /opt/hostedtoolcache/Python/3.9.23/x64
+          PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.9.23/x64/lib/pkgconfig
+          Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+          Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+          Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.9.23/x64
+          LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.9.23/x64/lib
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+          
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/python@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
 #ai code scan
-      
-      - name: Run Snyk scan and output results as JSON
+              with:
+        command: code test
+        args: .github/AIMLcode.py
         run: snyk test --file=.github/AIMLcode.py
       
       - name: Run Snyk scan and output results as JSON
