@@ -41,6 +41,11 @@ jobs:
         run: snyk test --json-file-output=snyk-result.json || true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          
+      -name: code scan 
+          with:
+          command: test
+        args: path/to/your/folder
 
       - name: Convert Snyk JSON result to HTML
         run: python .github/scripts/snyk_to_html.py
