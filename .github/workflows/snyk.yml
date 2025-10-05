@@ -36,12 +36,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
-#ai code scan
-              with:
-        command: code test
-        args: .github/AIMLcode.py
-        run: snyk test --file=.github/AIMLcode.py
-      
+
       - name: Run Snyk scan and output results as JSON
         run: snyk test --json-file-output=snyk-result.json || true
         env:
