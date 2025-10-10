@@ -36,14 +36,14 @@ jobs:
 
       - name: Convert Snyk JSON report to HTML
         run: |
-          python -c "
+          python -c '
 import json
 from json2html import json2html
 with open('snyk_report.json') as f:
     data = json.load(f)
 with open('snyk_report.html', 'w') as f:
     f.write(json2html.convert(json=data))
-"
+'
 
       - name: Upload HTML report
         uses: actions/upload-artifact@v4
